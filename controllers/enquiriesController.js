@@ -1,9 +1,10 @@
-const Enquiry = require('../models/Enquiry');
+// controllers/enquiriesController.js
+const Enquiry = require("../models/Enquiry");
 
 // @desc    Create a new enquiry
 // @route   POST /api/enquiries
 // @access  Public
-const createEnquiry = async (req, res) => {
+const createEnquiry = async (req, res, next) => {
   try {
     const {
       firstName,
@@ -19,10 +20,11 @@ const createEnquiry = async (req, res) => {
 
     // Basic validation
     if (!firstName || !mobile || !email) {
-      return res.status(400).json({ message: 'First name, mobile, and email are required.' });
+      return res
+        .status(400)
+        .json({ message: "First name, mobile, and email are required." });
     }
 
-    // Create a new enquiry record
     const newEnquiry = new Enquiry({
       firstName,
       lastName,
@@ -36,10 +38,10 @@ const createEnquiry = async (req, res) => {
     });
 
     await newEnquiry.save();
-    res.status(201).json({ message: 'Enquiry submitted successfully!' });
+    res.status(201).json({ message: "Enquiry submitted successfully!" });
   } catch (error) {
-    console.error('Error saving enquiry:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("❌ Error saving enquiry:", error.message);
+    next(error); // Pass to error handler
   }
 };
 

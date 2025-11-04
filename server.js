@@ -1,37 +1,36 @@
-require('dotenv').config();
-const express = require('express');
-const helmet = require('helmet');
-const cors = require('cors');
-const rateLimit = require('express-rate-limit');
-const connectDB = require('./config/db');
-const enquiriesRoute = require('./routes/enquiries');
-const errorHandler = require('./middleware/errorHandler');
+// server.js
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const connectDB = require("./config/db");
+const enquiryRoutes = require("./routes/enquiryRoutes");
+const errorHandler = require("./middleware/errorHandler");
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+dotenv.config();
 
-// Connect MongoDB
+// Connect Database
 connectDB();
 
+const app = express();
+
 // Middleware
-app.use(helmet());
-app.use(express.json());
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    methods: ['GET', 'POST', 'OPTIONS'],
-  })
-);
-app.use(rateLimit({ windowMs: 60 * 1000, max: 60 }));
+app.use(cors());
+app.use(express.json()); // ✅ Needed to parse JSON body
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/api/enquiries', enquiriesRoute);
+app.use("/api/enquiries", enquiryRoutes);
 
-// Health Check
-app.get('/health', (req, res) => res.send('OK'));
+// Health check route
+app.get("/", (req, res) => {
+  res.send("✅ Enquiry API is running");
+});
 
-// Error Handler
+// Error handler (always at the end)
 app.use(errorHandler);
 
-// Start Server
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on port ${PORT}`)
+);
